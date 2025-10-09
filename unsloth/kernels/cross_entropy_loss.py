@@ -31,6 +31,14 @@ from unsloth_zoo.loss_utils import (
 )
 
 
+def is_hip():
+    return triton.runtime.driver.active.get_current_target().backend == "hip"
+
+
+def is_cdna():
+    return is_hip() and triton.runtime.driver.active.get_current_target().arch in ('gfx940', 'gfx941', 'gfx942')
+
+
 def _cross_entropy_forward(
     logits_ptr        ,
     logits_row_stride ,
@@ -332,7 +340,7 @@ class Fast_CrossEntropyLoss(torch.autograd.Function):
                     SOFTCAP          = logit_softcapping,
                     DO_LOGIT_SCALING = DO_LOGIT_SCALING,
                     LOGIT_SCALE      = logit_scaling,
-                    num_warps        = 16,
+                    num_warps        = 32 if not is_cdna() else 16,
                 )
             # logsumexp(chunked_logsumexp) - x
             # Do the -x separately
