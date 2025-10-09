@@ -332,7 +332,7 @@ class Fast_CrossEntropyLoss(torch.autograd.Function):
                     SOFTCAP          = logit_softcapping,
                     DO_LOGIT_SCALING = DO_LOGIT_SCALING,
                     LOGIT_SCALE      = logit_scaling,
-                    num_warps        = 32,
+                    num_warps        = 16,
                 )
             # logsumexp(chunked_logsumexp) - x
             # Do the -x separately
